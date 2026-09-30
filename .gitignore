@@ -1,9 +1,8 @@
 # Terraform: lokalny cache providerów i moduły
 .terraform/
 
-# Terraform: stan (może zawierać sekrety)
-*.tfstate
-*.tfstate.*
+# Terraform: stan jest w repo (commituje go job CD). Ignorujemy tylko kopie zapasowe.
+*.tfstate.backup
 .terraform.tfstate.lock.info
 
 # Terraform: pliki planu i logi

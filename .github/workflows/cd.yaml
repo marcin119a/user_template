@@ -54,6 +54,8 @@ jobs:
     concurrency:
       group: terraform-apply
       cancel-in-progress: false
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v4
 
@@ -68,3 +70,18 @@ jobs:
 
       - name: Apply
         run: terraform apply -input=false tfplan
+
+      # Stan jest w repo, więc zapisujemy go także po nieudanym apply (część zasobów mogła powstać).
+      - name: Commit state
+        if: always()
+        run: |
+          if git diff --quiet -- terraform.tfstate; then
+            echo "Stan bez zmian"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add terraform.tfstate
+          git commit -m "chore: update terraform state [skip ci]"
+          git pull --rebase
+          git push
